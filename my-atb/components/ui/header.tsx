@@ -9,11 +9,11 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ title = 'Магазин', logo }) => {
     return (
         <SafeAreaView>
-            <View className="flex-row items-center justify-start p-4 bg-gray-500 shadow-md">
+            <View className="flex-row items-center justify-start p-4 bg-[#3d3f42] shadow-md">
                 {logo && (
                     <Image
                         source={logo}
-                        className="w-10 h-10 mr-3 "
+                        className="w-12 h-12 mr-3 "
                         resizeMode="contain"
                     />
                 )}

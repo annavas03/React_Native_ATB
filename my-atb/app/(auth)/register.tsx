@@ -2,19 +2,23 @@ import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
+    Image,
     TextInput,
     Alert,
     ScrollView,
     Pressable,
     SafeAreaView,
     KeyboardAvoidingView,
-    Platform
+    Platform,
+    TouchableOpacity,
 } from 'react-native';
 import { Formik, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { router } from 'expo-router';
 import usersData from '../../users.json';
 import * as FileSystem from 'expo-file-system';
+import {pickImage} from "@/utils/pickImage";
+import images from "@/constants/images";
 
 const USERS_FILE_PATH = `${FileSystem.documentDirectory}users.json`;
 
@@ -22,19 +26,19 @@ interface User {
     name: string;
     email: string;
     password: string;
+    imageUrl: string;
 }
 
 interface FormValues {
     name: string;
     email: string;
     password: string;
+    imageUrl: string;
 }
 
-interface RegisterProps {
-    switchToLogin: () => void;
-}
 
-const Register: React.FC<RegisterProps> = ({ switchToLogin }) =>  {
+const Register: React.FC = () => {
+
     const [existingUsers, setExistingUsers] = useState<User[]>([]);
 
     useEffect(() => {
@@ -78,7 +82,13 @@ const Register: React.FC<RegisterProps> = ({ switchToLogin }) =>  {
             return;
         }
 
-        const newUser: User = { name: values.name, email: values.email, password: values.password };
+        const newUser: User = {
+            name: values.name,
+            email: values.email,
+            password: values.password,
+            imageUrl: values.imageUrl,
+        };
+
         const updatedUsers = [...existingUsers, newUser];
 
         try {
@@ -111,12 +121,30 @@ const Register: React.FC<RegisterProps> = ({ switchToLogin }) =>  {
                         </Text>
 
                         <Formik
-                            initialValues={{ name: '', email: '', password: '' }}
+                            initialValues={{ name: '', email: '', password: '', imageUrl: '' }}
                             validationSchema={validationSchema}
                             onSubmit={handleRegister}
                         >
-                            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                            {({ handleChange, handleBlur, handleSubmit, setFieldValue, values, errors, touched }) => (
                                 <View className="w-3/4">
+
+                                    <TouchableOpacity
+                                        className="mb-5 self-center mx-2 w-[200px] h-[200px] rounded-full overflow-hidden"
+                                        onPress={async () => {
+                                            const uri = await pickImage();
+                                            if (uri) setFieldValue('imageUrl', uri);
+                                        }}
+                                    >
+                                        <Image
+                                            source={
+                                                values.imageUrl
+                                                    ? { uri: values.imageUrl }
+                                                    : images.noimage
+                                            }
+                                            className="object-cover w-full h-full"
+                                        />
+                                    </TouchableOpacity>
+
                                     <TextInput
                                         placeholder="Ім'я"
                                         className="border border-gray-300 p-3 mb-2 rounded"
@@ -163,7 +191,7 @@ const Register: React.FC<RegisterProps> = ({ switchToLogin }) =>  {
 
                                     <View className="flex-row justify-center mt-4">
                                         <Text className="text-gray-600">Маєш акаунт? </Text>
-                                        <Pressable onPress={switchToLogin}>
+                                        <Pressable onPress={() => router.push("/(auth)/login")}>
                                             <Text className="text-blue-500 font-semibold">Залогінься!</Text>
                                         </Pressable>
                                     </View>

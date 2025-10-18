@@ -14,11 +14,17 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { router } from 'expo-router';
 import * as FileSystem from 'expo-file-system';
+import { useAuth } from '../context/AuthContext'
 
 const USERS_FILE_PATH = `${FileSystem.documentDirectory}users.json`;
 
 interface User {
     name: string;
+    email: string;
+    password: string;
+}
+
+interface LoginValues {
     email: string;
     password: string;
 }
@@ -47,14 +53,13 @@ const Login: React.FC<LoginProps> = ({ switchToRegister }) => {
         email: Yup.string().email('Некоректний email').required('Email обов’язковий'),
         password: Yup.string().required('Пароль обов’язковий'),
     });
+    const { login } = useAuth();
 
-    const handleLogin = async (values: { email: string; password: string }) => {
+    const handleLogin = async (values: LoginValues) => {
         const user = users.find(u => u.email === values.email && u.password === values.password);
-
         if (user) {
-            console.log('✅ Успішний вхід користувача:', user);
-            Alert.alert('Успіх', `Вітаю, ${user.name}!`);
-            router.push('/(tabs)');
+            login();
+            router.replace('/(tabs)');
         } else {
             Alert.alert('Помилка', 'Невірний email або пароль');
         }
@@ -67,7 +72,7 @@ const Login: React.FC<LoginProps> = ({ switchToRegister }) => {
                 className="flex-1"
             >
                 <ScrollView>
-                    <View className="flex-1 pt-24 pb-10 items-center w-[90%] max-w-[400px] self-center">
+                    <View className="flex-1 pt-24 pb-10 items-center w-[350px] max-w-[400px] h-[500px] self-center">
                         <Text className="text-3xl font-bold mb-6 text-black text-center">
                             Логін
                         </Text>
@@ -114,7 +119,7 @@ const Login: React.FC<LoginProps> = ({ switchToRegister }) => {
 
                                     <View className="flex-row justify-center mt-4">
                                         <Text className="text-gray-600">Не маєш акаунту? </Text>
-                                        <Pressable onPress={switchToRegister}>
+                                        <Pressable onPress={() => router.push("/(auth)/register")}>
                                             <Text className="text-blue-500 font-semibold">Зареєструйся!</Text>
                                         </Pressable>
                                     </View>
