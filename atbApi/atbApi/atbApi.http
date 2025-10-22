@@ -1,0 +1,6 @@
+@atbApi_HostAddress = http://localhost:5267
+
+GET {{atbApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
