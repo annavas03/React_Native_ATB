@@ -10,6 +10,7 @@ namespace atbApi.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    // Конструктор контролера, через Dependency Injection отримує сервіси
     public class AccountController(IJwtTokenService jwtTokenService,
             IMapper mapper, IImageService imageService,
             UserManager<UserEntity> userManager) : ControllerBase
@@ -33,12 +34,14 @@ namespace atbApi.Controllers
 
             if (model.ImageFile != null)
             {
+                // Зберігає зображення і присвоює шлях користувачу
                 user.Image = await imageService.SaveImageAsync(model.ImageFile);
             }
 
             var result = await userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
+                // Додає користувача в роль "User"
                 await userManager.AddToRoleAsync(user, Roles.User);
                 var token = await jwtTokenService.CreateTokenAsync(user);
 

@@ -12,8 +12,10 @@ namespace atbApi;
 
 public static class DbSeeder
 {
+    // Розширювальний метод для WebApplication для даних у БД
     public static async Task SeedData(this WebApplication webApplication)
     {
+        // Створює scope для отримання служб через залежності
         using var scope = webApplication.Services.CreateScope();
         //Цей об'єкт буде верта посилання на конткетс, який зараєстрвоано в Progran.cs
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -37,6 +39,7 @@ public static class DbSeeder
 
         if (!context.Users.Any())
         {
+            // Отримує сервіс для роботи із зображеннями
             var imageService = scope.ServiceProvider.GetRequiredService<IImageService>();
             var jsonFile = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "JsonData", "Users.json");
             if (File.Exists(jsonFile))
@@ -44,11 +47,13 @@ public static class DbSeeder
                 var jsonData = await File.ReadAllTextAsync(jsonFile);
                 try
                 {
+                    // Десеріалізуємо JSON у список моделей SeederUserModel
                     var users = JsonSerializer.Deserialize<List<SeederUserModel>>(jsonData);
                     foreach (var user in users)
                     {
                         var entity = mapper.Map<UserEntity>(user);
                         entity.UserName = user.Email;
+                        // Зберігаємо зображення користувача з URL
                         entity.Image = await imageService.SaveImageFromUrlAsync(user.Image);
                         var result = await userManager.CreateAsync(entity, user.Password);
                         if (!result.Succeeded)
@@ -56,6 +61,7 @@ public static class DbSeeder
                             Console.WriteLine("Error Create User {0}", user.Email);
                             continue;
                         }
+                        // Додаємо користувача до ролей
                         foreach (var role in user.Roles)
                         {
                             if (await roleManager.RoleExistsAsync(role))
