@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
     View,
     Text,
@@ -12,56 +12,45 @@ import {
 } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { router } from 'expo-router';
-import * as FileSystem from 'expo-file-system';
-import { useAuth } from '../context/AuthContext'
-
-const USERS_FILE_PATH = `${FileSystem.documentDirectory}users.json`;
-
-interface User {
-    name: string;
-    email: string;
-    password: string;
-}
+import { useRouter } from 'expo-router';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 interface LoginValues {
     email: string;
     password: string;
 }
 
-interface LoginProps {
-    switchToRegister: () => void;
-}
-
-const Login: React.FC<LoginProps> = ({ switchToRegister }) => {
-    const [users, setUsers] = useState<User[]>([]);
-
-    useEffect(() => {
-        const loadUsers = async () => {
-            try {
-                const fileContent = await FileSystem.readAsStringAsync(USERS_FILE_PATH);
-                setUsers(JSON.parse(fileContent));
-                console.log('📄 Користувачі завантажені для логіну:', USERS_FILE_PATH);
-            } catch (error) {
-                console.log('❌ Помилка при завантаженні користувачів для логіну:', error);
-            }
-        };
-        loadUsers();
-    }, []);
+const Login: React.FC = () => {
+    const router = useRouter();
+    const { login } = useAuth();
 
     const validationSchema = Yup.object().shape({
         email: Yup.string().email('Некоректний email').required('Email обов’язковий'),
         password: Yup.string().required('Пароль обов’язковий'),
     });
-    const { login } = useAuth();
 
     const handleLogin = async (values: LoginValues) => {
-        const user = users.find(u => u.email === values.email && u.password === values.password);
-        if (user) {
-            login();
-            router.replace('/(tabs)');
-        } else {
-            Alert.alert('Помилка', 'Невірний email або пароль');
+        try {
+            const url = 'http://10.0.2.2:5267/api/Account/Login';
+            const response = await axios.post(url, {
+                email: values.email,
+                password: values.password
+            });
+
+            const { token, user } = response.data;
+            if (token) {
+                login(token, user);
+                router.replace('/(tabs)');
+            } else {
+                Alert.alert('Помилка', 'Невірні дані для входу');
+            }
+        } catch (error: any) {
+            console.log('Login error', error.response?.data || error.message);
+            Alert.alert(
+                'Помилка входу',
+                error.response?.data?.title || 'Невірний email або пароль'
+            );
         }
     };
 

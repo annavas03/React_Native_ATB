@@ -100,9 +100,16 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<UserMapper>();
 });
 
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+app.UseCors(builder => builder
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
 
 app.UseSwagger();
 app.UseSwaggerUI();

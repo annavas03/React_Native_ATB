@@ -47,6 +47,8 @@ namespace Core.Services
 
         public async Task<string> SaveImageAsync(IFormFile file)
         {
+            if (file == null || file.Length == 0)
+                return null;
             using MemoryStream ms = new();
             await file.CopyToAsync(ms);
             var bytes = ms.ToArray();

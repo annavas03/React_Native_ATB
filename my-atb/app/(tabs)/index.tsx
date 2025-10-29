@@ -4,13 +4,12 @@ import {
     SafeAreaView,
     KeyboardAvoidingView,
     Platform,
-    Animated,
     TouchableOpacity,
-    Image
+    Image,
+    ScrollView,
 } from 'react-native';
-import {SafeAreaProvider} from "react-native-safe-area-context";
-import ScrollView = Animated.ScrollView;
-import {router} from "expo-router";
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 
 const products = [
@@ -19,18 +18,12 @@ const products = [
     { id: 3, title: 'Товар 3', price: 200, image: require('../../assets/product3.png') },
 ];
 
-
 export default function HomeScreen() {
-    const { isLoggedIn, login } = useAuth();
+    const { isLoggedIn } = useAuth();
+    const router = useRouter();
 
     const switchToLogin = () => {
         router.push('/(auth)/login');
-    };
-
-
-    const handleLoginSuccess = () => {
-        login();
-        router.replace('/(tabs)');
     };
 
     return (
@@ -70,14 +63,19 @@ export default function HomeScreen() {
                                 {products.map((product) => (
                                     <View
                                         key={product.id}
-                                        className="bg-white rounded-xl p-4 mb-4"
+                                        className="bg-white rounded-xl p-4 mb-4 h-96"
                                     >
-                                        <Image
-                                            source={product.image}
-                                            style={{ width: '100%', height: 150, borderRadius: 10 }}
-                                        />
-                                        <Text className="text-lg font-bold mt-2">{product.title}</Text>
-                                        <Text className="text-gray-600">{product.price} ₴</Text>
+                                        <View className="flex-1 bg-transparent rounded-xl overflow-hidden">
+                                            <Image
+                                                source={product.image}
+                                                className="h-full w-full  object-cover"
+                                            />
+                                        </View>
+
+                                        <View className="pt-3">
+                                            <Text className="text-lg font-bold">{product.title}</Text>
+                                            <Text className="text-gray-600">{product.price} ₴</Text>
+                                        </View>
                                     </View>
                                 ))}
                             </View>

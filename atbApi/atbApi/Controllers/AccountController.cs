@@ -31,16 +31,28 @@ namespace atbApi.Controllers
         {
             var user = mapper.Map<UserEntity>(model);
 
-            user.Image = await imageService.SaveImageAsync(model.ImageFile!);
+            if (model.ImageFile != null)
+            {
+                user.Image = await imageService.SaveImageAsync(model.ImageFile);
+            }
 
             var result = await userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(user, Roles.User);
                 var token = await jwtTokenService.CreateTokenAsync(user);
+
                 return Ok(new
                 {
-                    Token = token
+                    token,
+                    user = new
+                    {
+                        id = user.Id,
+                        email = user.Email,
+                        firstName = user.FirstName,
+                        lastName = user.LastName,
+                        image = user.Image
+                    }
                 });
             }
             else
@@ -49,7 +61,7 @@ namespace atbApi.Controllers
                 {
                     status = 400,
                     isValid = false,
-                    errors = "Registration failed"
+                    errors = result.Errors.ToList()
                 });
             }
         }
