@@ -14,7 +14,9 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
+import {useAuth} from "@/context/AuthContext";
+import { API_URL } from '@/constants/api';
+
 
 interface LoginValues {
     email: string;
@@ -32,16 +34,18 @@ const Login: React.FC = () => {
 
     const handleLogin = async (values: LoginValues) => {
         try {
-            const url = 'http://10.0.2.2:5267/api/Account/Login';
+            const url = `${API_URL}/Account/Login`;
             const response = await axios.post(url, {
                 email: values.email,
                 password: values.password
             });
 
+            console.log('Login response:', response.data);
+
             const { token, user } = response.data;
             if (token) {
                 login(token, user);
-                router.replace('/(tabs)');
+                router.replace('/(tabs)/home');
             } else {
                 Alert.alert('Помилка', 'Невірні дані для входу');
             }

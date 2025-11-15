@@ -4,7 +4,7 @@
     "slug": "my-atb",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/logo.jpg",
     "scheme": "myatb",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

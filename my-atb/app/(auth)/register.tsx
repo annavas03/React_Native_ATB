@@ -20,7 +20,9 @@ import { getFileFromUriAsync } from '@/utils/getFileFromUriAsync';
 import images from '@/constants/images';
 import { serialize } from 'object-to-formdata';
 import { validate } from '@/utils/validations';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
+import { API_URL } from '@/constants/api';
+
 
 const getValidationErrors = (values: any) => {
     const errors: Record<string, string> = {};
@@ -78,7 +80,7 @@ const Register: React.FC = () => {
                 if (fileImage) formData.append('ImageFile', fileImage as any);
             }
 
-            const url = 'http://10.0.2.2:5267/api/Account/Register';
+            const url = `${API_URL}/Account/Register`;
             const response = await axios.post(url, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
@@ -87,7 +89,7 @@ const Register: React.FC = () => {
 
             if (token ) {
                 login(token);
-                router.replace('/(tabs)');
+                router.replace('/(tabs)/home');
             } else {
                 Alert.alert('Помилка', 'Невірна відповідь від сервера');
             }

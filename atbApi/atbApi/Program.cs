@@ -1,4 +1,5 @@
 using atbApi;
+using atbApi.Swagger;
 using Core.Interfaces;
 using Core.Mapper;
 using Core.Models.Account;
@@ -88,6 +89,7 @@ builder.Services.AddSwaggerGen(opt =>
             new string[]{}
         }
     });
+    opt.OperationFilter<SwaggerFileOperationFilter>();
 
 });
 

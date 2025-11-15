@@ -3,8 +3,10 @@ using Core.Constants;
 using Core.Interfaces;
 using Core.Models.Account;
 using Domain.Entities.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace atbApi.Controllers
 {
@@ -22,7 +24,17 @@ namespace atbApi.Controllers
             if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
             {
                 var token = await jwtTokenService.CreateTokenAsync(user);
-                return Ok(new { Token = token });
+                return Ok(new {
+                    token ,
+                    user = new
+                    {
+                        id = user.Id,
+                        email = user.Email,
+                        firstName = user.FirstName,
+                        lastName = user.LastName,
+                        image = user.Image
+                    }
+                });
             }
             return Unauthorized("Invalid email or password");
         }
@@ -30,6 +42,8 @@ namespace atbApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Register([FromForm] RegisterModel model)
         {
+            var request = Request;
+
             var user = mapper.Map<UserEntity>(model);
 
             if (model.ImageFile != null)
@@ -68,5 +82,30 @@ namespace atbApi.Controllers
                 });
             }
         }
+
+        [Authorize]
+        [HttpGet("current")]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+
+            var email = User.FindFirstValue(ClaimTypes.Email);
+
+            if (email == null)
+                return Unauthorized("Invalid token or missing email claim.");
+
+            var user = await userManager.FindByEmailAsync(email);
+            if (user == null)
+                return NotFound("User not found.");
+
+            return Ok(new
+            {
+                id = user.Id,
+                email = user.Email,
+                firstName = user.FirstName,
+                lastName = user.LastName,
+                image = user.Image
+            });
+        }
+
     }
 }

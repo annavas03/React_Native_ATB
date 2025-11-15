@@ -6,27 +6,22 @@ import { View } from 'react-native';
 
 export default function TabLayout() {
     return (
-        <View style={{ flex: 1 }}>
             <Tabs
                 screenOptions={{
                     tabBarActiveTintColor: 'white',
                     headerShown: false,
                     tabBarButton: HapticTab,
-                    tabBarStyle: {
-                        backgroundColor: '#3d3f42',
-                        borderTopWidth: 0,
-                        height: 70,
-                    },
+                    tabBarStyle: {display: "none"},
                 }}
             >
                 <Tabs.Screen
-                    name="index"
+                    name="home"
                     options={{
                         title: 'Home',
                         tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color="white" />,
                     }}
                 />
             </Tabs>
-        </View>
+
     );
 }

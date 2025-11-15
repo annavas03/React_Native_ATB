@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
+
 
 const products = [
     { id: 1, title: 'Товар 1', price: 100, image: require('../../assets/product1.jpg') },
@@ -19,7 +20,7 @@ const products = [
 ];
 
 export default function HomeScreen() {
-    const { isLoggedIn } = useAuth();
+    const { token } = useAuth();
     const router = useRouter();
 
     const switchToLogin = () => {
@@ -38,7 +39,7 @@ export default function HomeScreen() {
                         keyboardShouldPersistTaps="handled"
                         className="bg-[#51555b]"
                     >
-                        {!isLoggedIn ? (
+                        {!token ? (
                             <View className="flex-1 pt-24 pb-10 items-center w-[90%] max-w-[400px] self-center">
                                 <Text className="text-4xl font-bold text-white text-center">
                                     Вас вітає АТБ-маркет!
